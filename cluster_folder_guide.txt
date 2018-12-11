@@ -1,0 +1,103 @@
+All things listed below are in the same order as they are in our cluster folder. 
+
+
+1. checkpoints (corresponding to the "models" folder below, "models" contains the training history):
+weights of the original WRN model
+
+2. checkpoints_aug (corresponding to the "models_aug" folder below, "models_aug" contains the training history):
+weights of the original WRN model trained with data augmentation (mixup + random erasing) 
+
+3. checkpoints_lr (corresponding to "models_lr" below):
+weights of the WRN model trained with 0.05 learning rate without data augmentation
+
+4. checkpoints_vgg (corresponding to "models_vgg" below):
+weights of VGG16 model (replacing WRN), no aug, unfinished training
+
+5. checkpoints_vgg_aug (corresponding to "models_vgg_aug" below):
+weights of VGG16 trained with data augmentation (mixup + random erasing)
+
+6. checkpoints_resnet_aug005 (corresponding to "models_resnet_aug005" below):
+weights of ResNet50 trained with data augmentation (mixup + random erasing) and 0.05 learning rate
+
+7. checkpoints_sub_100:
+weights and training history of the default ResNet50 model, 100 epochs, trained on appa-real (0.4 margin) only
+
+8. checkpoints_sub_150:
+weights and training history of the default ResNet50 model, 150 epochs, trained on appa-real only
+
+9. checkpoints_sub_appa_utk:
+weights and training history of ResNet50, 150 epochs, trained on appa-real & UTKFace_margin (both are of 0.4 margin),
+training on both datasets gives obviously better results 
+
+10. checkpoints_sub_appa_utk_dense:
+weights of DenseNet201, unfinished training due to unsatisfying results
+
+11. checkpoints_sub_appa_utk_incep:
+weights and training history of InceptionResNetV2, trained on appa-real & UTKFace_margin
+
+12. checkpoints_sub_appa_utk_incep_nolabel_butpipe:
+weights and history of InceptionResNetV2, trained on appa-real & UTKFace_margin, 
+it has the data aug pipeline, but no label aug
+
+13. checkpoints_sub_appa_utk_incep_nolabel_nopipe:
+weights and history of InceptionResNetV2, trained on appa-real & UTKFace_margin,
+it has neither the data aug pipeline nor label aug
+
+14. checkpoints_sub_appa_utk_incep_nopipe_butlabel:
+weights and history of InceptionResNetV2, trained on appa-real & UTKFace_margin,
+it has label aug, but no data aug pipeline
+
+12-14 together have shown the data aug pipeline has a bigger impact on results than label aug. 
+
+15. checkpoints_sub_appa_utk_incep_pipe_skew:
+weights and history of InceptionResNetV2, trained on appa-real & UTKFace_margin,
+it has label aug and a modified data aug pipeline, which looks like:
+    p = Augmentor.Pipeline()
+    p.flip_left_right(probability=0.5)
+    p.rotate(probability=0.5, max_left_rotation=5, max_right_rotation=5)
+    p.zoom_random(probability=0.5, percentage_area=0.95)
+    p.random_distortion(probability=0.5, grid_width=2, grid_height=2, magnitude=8)
+    p.skew(probability=0.5, magnitude=0.2)
+    p.random_color(probability=0.5, min_factor=0.8, max_factor=1.2)
+    p.random_contrast(probability=0.5, min_factor=0.8, max_factor=1.2)
+    p.random_brightness(probability=0.5, min_factor=0.8, max_factor=1.2)
+    p.random_erasing(probability=0.5, rectangle_area=0.20)
+
+16. checkpoints_sub_appa_utk_incep_pipe_skew2:
+basically same as above, but with: p.skew(probability=0.5, magnitude=0.1), where magnitude is 0.1 rather than 0.2,
+it gives slight result improvement.
+
+17. checkpoints_sub_appa_utk_incep_sgd (!!! this is the only one not using the Adam optimizer):
+weights and history of InceptionResNetV2, trained on appa-real & UTKFace_margin,
+label aug and the data aug pipeline stay original, but using SGD as optimizer instead of Adam, 
+it shows Adam optimizer gives obviously better results.
+
+18. checkpoints_sub_appa_utk_incep3:
+weights and history of InceptionV3 (original aug and Adam), results are not comparable to InceptionResNetV2's.
+trained on appa-real & UTKFace_margin
+
+19. checkpoints_sub_appa_utk_xcep:
+weights and history of Xception (original aug and Adam), results are even slightly better than InceptionResNetV2's.
+trained on appa-real & UTKFace_margin
+
+20. checkpoints_sub_appa_utk_xcep_skew_best:
+weights and history of Xception, trained with the modified pipeline mentioned above (magnitude=0.1 for skew) + Adam,
+on appa-real & UTKFace_margin, this configuration yields the best results, 3.79 MAE (apparent age). 
+
+21. checkpoints_sub_incep:  
+weights and history of InceptionResNetV2, trained on appa-real only,
+this is an early experiment, but it positions this low due to the file name order. 
+
+Each time It took 6-7 hours to train a model on both appa-real & UTKFace_margin datasets, two GPUs were used. 
+
+
+
+UTKFace_margin (0.4 margin) is created from UTKFace_wild dataset via create_utkface_with_margin.py
+
+generator.py contains the data augmentation pipeline and label augmentation
+
+model.py & model2.py contain the models (ResNet50, InceptionResNetV2, Xception, etc). 
+
+plot_history2.py plots graphs for the later age prediction models, while plot_history.py plots for earlier models. 
+
+random_eraser.py now included in the data aug pipeline. 
