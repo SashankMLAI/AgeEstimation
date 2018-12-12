@@ -10,3 +10,6 @@ Quantitative Results:
 
 ![](Quantitative_results/set1.jpg)
 
+Qualitative Results: 
+
+![](Evaluation_results/12.PNG)
